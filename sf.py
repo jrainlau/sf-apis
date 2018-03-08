@@ -1,8 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
 
-INDEX_PAGE = 'https://segmentfault.com/blog/jrain'
-
 def innerHTML(element):
     return element.decode_contents(formatter = 'html')
 
@@ -14,10 +12,10 @@ def visit_page(url):
     r.encoding = 'utf-8'
     return BeautifulSoup(r.text, 'lxml')
     
-PAGE_COUNT = len(visit_page(INDEX_PAGE).select('div.text-center > ul > li'))
-PAGES = [visit_page(INDEX_PAGE + '?page=' + str(i)) for i in range(1, PAGE_COUNT)]
-
-def get_articles():
+def get_articles(ctx):
+    INDEX_PAGE = 'https://segmentfault.com/blog/' + ctx.args.get('author')
+    PAGE_COUNT = len(visit_page(INDEX_PAGE).select('div.text-center > ul > li'))
+    PAGES = [visit_page(INDEX_PAGE + '?page=' + str(i)) for i in range(1, PAGE_COUNT)]
     articles = []
     for page in PAGES:
         articleList = page.select('div.stream-list.blog-stream > section > div.summary')
@@ -38,5 +36,4 @@ def get_articles():
                 'collect': collect,
                 'like': like
             })
-    print(articles)
     return articles
