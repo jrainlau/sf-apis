@@ -20,13 +20,23 @@ PAGES = [visit_page(INDEX_PAGE + '?page=' + str(i)) for i in range(1, PAGE_COUNT
 def get_articles():
     articles = []
     for page in PAGES:
-        linkList = page.select('div.stream-list.blog-stream > section > div.summary > h2 > a')
-        for link in linkList:
-            title = link.get_text()
-            link_href = link.get('href')
-            content = innerHTML(visit_page('https://segmentfault.com/' + link_href).select('div.article.fmt.article__content')[0])
+        articleList = page.select('div.stream-list.blog-stream > section > div.summary')
+        for article in articleList:
+            titleInfo = article.select('h2 > a')[0]
+            authorInfo = article.find('ul', { 'class', 'list-inline' }).text.split()
+            title = titleInfo.get_text()
+            link = titleInfo.get('href')
+            author = authorInfo[0]
+            time = authorInfo[1]
+            collect = authorInfo[2]
+            like = page.find('span', { 'class', 'stream__item-zan-number' }).text
             articles.append({
                 'title': title,
-                'link': link_href
+                'link': link,
+                'time': time,
+                'author': author,
+                'collect': collect,
+                'like': like
             })
+    print(articles)
     return articles
